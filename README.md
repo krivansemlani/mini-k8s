@@ -2,6 +2,8 @@
 
 > A from-scratch implementation of core Kubernetes concepts in Go. This project builds a real container orchestration system that schedules, runs, and monitors Docker containers through a state machine — the same fundamental loop that powers production Kubernetes.
 
+A companion web dashboard lives in [`dashboard/`](./dashboard) — a premium UI for submitting jobs and watching them flow through the state machine in real time. See [`dashboard/README.md`](./dashboard/README.md) to run it.
+
 ---
 
 ## Table of Contents
@@ -413,7 +415,7 @@ Without this, containers keep running after the app exits and the database has s
 
 ```bash
 # Clone and enter project
-git clone https://github.com/yourusername/mini-k8s
+git clone https://github.com/krivansemlani/mini-k8s
 cd mini-k8s
 
 # Create .env file
@@ -445,6 +447,44 @@ curl -X POST http://localhost:8080/jobs \
 ```bash
 curl http://localhost:8080/jobs
 ```
+
+### Run the Dashboard (UI)
+
+A companion web dashboard lives in [`dashboard/`](./dashboard). It talks to the Go API through a Vite dev proxy, so there is **no CORS change needed** on the backend.
+
+**Prerequisites**: Node.js 18+ and npm.
+
+In one terminal, keep the Go API running:
+
+```bash
+go run main.go
+```
+
+In a second terminal, start the dashboard:
+
+```bash
+cd dashboard
+npm install          # first time only
+npm run dev
+```
+
+Then open [http://localhost:5173](http://localhost:5173).
+
+What you'll see:
+
+- **Phase stats** — live counts for submitted / runnable / running / succeeded / failed.
+- **Submit form** — presets like `nginx:alpine`, `busybox`, `alpine sleep`, plus optional command and KEY=value env vars.
+- **Jobs log** — polls `GET /jobs` every 3s with filters, search, and per-job detail (container id, env vars, timestamps).
+- **Architecture** — the state machine and the three workers.
+
+To produce a production build (static assets in `dashboard/dist/`):
+
+```bash
+cd dashboard
+npm run build
+```
+
+See [`dashboard/README.md`](./dashboard/README.md) for more.
 
 ---
 
